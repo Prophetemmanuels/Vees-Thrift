@@ -4,260 +4,192 @@
 <meta charset="UTF-8">
 <title>Vees Thrift</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="manifest" href="manifest.json">
 
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){
- emailjs.init("lS0EqS1UcioO4Cm1B");
-})();
-</script>
-
 <style>
-:root{--pink:#f6c1d9;--gold:#d4af37;--white:#fff;}
-body{margin:0;font-family:Segoe UI,sans-serif;background:linear-gradient(to bottom,var(--pink),var(--white));}
-
+body{margin:0;font-family:Arial;background:#fff}
 header{
- display:flex;justify-content:space-between;align-items:center;
- padding:10px;background:white;
- box-shadow:0 2px 6px rgba(0,0,0,.1);
+  background:#f7c6d0;
+  display:flex;
+  align-items:center;
+  padding:10px;
 }
 header img{
- width:48px;height:48px;border-radius:50%;
- border:2px solid var(--gold);
+  width:45px;height:45px;border-radius:50%;margin-right:10px
 }
-#datetime{font-size:13px;color:#555;}
+header h2{margin:0;color:#5a1a2e}
 
-.search{padding:10px;}
-.search input{
- width:100%;padding:10px;border-radius:20px;border:1px solid #ccc;
-}
+.search{padding:10px}
+.search input{width:100%;padding:10px}
 
 .products{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
- gap:15px;padding:15px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  padding:10px;
 }
-
 .product{
- background:white;border-radius:15px;padding:10px;
- box-shadow:0 2px 6px rgba(0,0,0,.1);
- text-align:center;cursor:pointer;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 0 5px rgba(0,0,0,.1);
+  padding:8px;
+  text-align:center;
 }
-.product img{width:100%;border-radius:10px;}
-.price{color:var(--gold);font-weight:bold;}
+.product img{width:100%;border-radius:8px}
+.product button{background:#d6336c;color:#fff;border:none;padding:8px;width:100%}
 
 .cart{
- position:fixed;bottom:0;width:100%;
- background:white;padding:10px;
- box-shadow:0 -2px 6px rgba(0,0,0,.1);
- display:flex;justify-content:space-between;
- z-index:5;
+  padding:10px;background:#fce4ec
 }
-.cart button{
- background:var(--pink);border:none;
- padding:8px 14px;border-radius:20px;
+.cart-item{
+  display:flex;justify-content:space-between;margin-bottom:5px
+}
+.cart-item button{background:red;color:#fff;border:none}
+
+.fixed-pay{
+  position:fixed;bottom:0;width:100%;
+  background:#d6336c;color:#fff;
+  padding:15px;font-size:18px;border:none
 }
 
-.whatsapp,.whatsapp-group{
- position:fixed;right:15px;
- padding:14px;border-radius:50%;
- color:white;text-decoration:none;font-size:20px;
- z-index:10;
+/* CUSTOMER INFO */
+#customerBox{
+  position:fixed;bottom:0;left:0;right:0;
+  max-height:90vh;
+  background:#fff;
+  display:none;
+  overflow-y:auto;
+  padding:15px;
+  border-radius:20px 20px 0 0;
 }
-.whatsapp{bottom:95px;background:#25D366;}
-.whatsapp-group{bottom:155px;background:#128C7E;}
+#customerBox input{width:100%;padding:10px;margin-bottom:10px}
 
-.modal{
- display:none;position:fixed;top:0;left:0;
- width:100%;height:100%;background:white;
- z-index:20;padding:15px;overflow:auto;
-}
-
-.back{margin-bottom:10px;}
-
-#cartModal h3{text-align:center;}
-
-#customerInfo{
- display:none;
- background:var(--pink);
- padding:12px 15px 90px;
- border-radius:15px 15px 0 0;
- position:fixed;bottom:-100%;
- left:0;width:100%;
- max-height:75vh;
- overflow-y:auto;
- transition:bottom .45s ease;
- z-index:30;
-}
-
-#customerInfo input{
- width:100%;padding:10px;
- margin:6px 0;border-radius:8px;
- border:1px solid #ccc;
-}
-
-#customerInfoFooter{
- display:none;
- position:fixed;bottom:0;left:0;
- width:100%;
- background:var(--pink);
- padding:12px 15px 15px;
- box-shadow:0 -2px 6px rgba(0,0,0,.2);
- z-index:35;
-}
-#customerInfoFooter button{
- width:100%;
- padding:14px;border:none;
- border-radius:25px;
- background:var(--gold);
- color:white;font-size:16px;
- font-weight:bold;
-}
+.btn{width:100%;padding:12px;border:none;margin-bottom:10px}
+.whatsapp{background:#25D366;color:#fff}
+.pay{background:#2f9e44;color:#fff}
+.close{background:#999;color:#fff}
+.copy{background:#ffd43b}
 </style>
 </head>
 
 <body>
 
 <header>
- <div style="display:flex;align-items:center;gap:10px;">
-  <!-- 👇 APP LOGO HERE -->
-  <img src="images/icon.png">
-  <h3>Vees Thrift</h3>
- </div>
- <div id="datetime"></div>
+<img src="images/logo.png">
+<h2>Vees Thrift</h2>
 </header>
 
 <div class="search">
- <input id="search" placeholder="Search items...">
+<input placeholder="Search products..." onkeyup="search(this.value)">
 </div>
 
-<div class="products">
- <div class="product" onclick="openProduct('Pink Dress','images/p1.jpg',250)">
-  <img src="images/p1.jpg">
-  <h4>Pink Dress</h4>
-  <p class="price">ZMW 250</p>
- </div>
-
-<div class="product" onclick="openProduct('orange','images/p3.jpg',250)">
-  <img src="images/p3.jpg">
-  <h4>orange Dress</h4>
-  <p class="price">ZMW 150</p>
- </div>
-
-<div class="product" onclick="openProduct('Gold Handbag','images/p2.jpg',300)">
-  <img src="images/p2.jpg">
-  <h4>Gold Handbag</h4>
-  <p class="price">ZMW 300</p>
- </div>
-</div>
+<div class="products" id="products"></div>
 
 <div class="cart">
- <span>Total: ZMW <b id="total">0</b></span>
- <button onclick="openCart()">Cart</button>
- <button onclick="checkout()">Pay Now</button>
+<h3>Cart</h3>
+<div id="cartItems"></div>
+<b>Total: K<span id="total">0</span></b>
 </div>
 
-<a class="whatsapp" href="https://wa.me/260971415665">💬</a>
-<a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF">👥</a>
+<button class="fixed-pay" onclick="openCustomer()">Finish & Pay</button>
 
-<div class="modal" id="modal">
- <button class="back" onclick="closeModal()">⬅ Back</button>
- <img id="modalImg" style="width:100%">
- <h3 id="modalName"></h3>
- <p id="modalPrice"></p>
- <button onclick="addToCart()">Add to Cart</button>
-</div>
+<!-- CUSTOMER INFO -->
+<div id="customerBox">
+<h3>Customer Information</h3>
 
-<div class="modal" id="cartModal">
- <button class="back" onclick="closeCart()">⬅ Back</button>
- <h3>Cart</h3>
- <div id="cartItems"></div>
-</div>
+<input id="cname" placeholder="Full Name">
+<input id="cphone" placeholder="WhatsApp Number">
+<input id="cemail" placeholder="Email (optional)">
+<input id="caddress" placeholder="Delivery Address">
 
-<div id="customerInfo">
- <h3>Customer Info</h3>
- <label>WhatsApp Number *</label>
- <input id="customerWhatsApp" placeholder="0971xxxxxx">
- <label>Email (Optional)</label>
- <input id="customerEmail" placeholder="email@example.com">
- <p style="font-size:13px;">You will dial *115# then confirm on WhatsApp.</p>
-</div>
+<button class="btn whatsapp" onclick="sendOrder()">Send Order to WhatsApp</button>
 
-<div id="customerInfoFooter">
- <button onclick="confirmCustomerInfo()">Finish & Pay</button>
+<button class="btn copy" onclick="copyPay()">Copy Payment Details</button>
+
+<button class="btn pay" onclick="pay()">Make Transaction (*115#)</button>
+
+<button class="btn close" onclick="closeCustomer()">Close</button>
 </div>
 
 <script>
-let cart=[],total=0,current={};
+const products=[
+ {name:"Red Dress",price:250,img:"images/product1.jpg"},
+ {name:"Blue Dress",price:300,img:"images/product2.jpg"},
+ {name:"Heels",price:180,img:"images/product3.jpg"},
+ {name:"Bag",price:200,img:"images/product4.jpg"}
+];
 
-function openProduct(n,i,p){
- current={name:n,img:i,price:p};
- modal.style.display="block";
- modalImg.src=i;
- modalName.innerText=n;
- modalPrice.innerText="ZMW "+p;
-}
-function closeModal(){modal.style.display="none";}
-function addToCart(){
- cart.push(current);
- total+=current.price;
- document.getElementById("total").innerText=total;
- closeModal();
-}
+let cart=[];
 
-function openCart(){
- cartModal.style.display="block";
- cartItems.innerHTML="";
- cart.forEach(i=>{
-  cartItems.innerHTML+=`${i.name} - ZMW ${i.price}<br>`;
+function renderProducts(list=products){
+ document.getElementById("products").innerHTML="";
+ list.forEach(p=>{
+  productsDiv.innerHTML+=`
+   <div class="product">
+    <img src="${p.img}">
+    <p>${p.name}</p>
+    <b>K${p.price}</b>
+    <button onclick="add('${p.name}',${p.price})">Add to Cart</button>
+   </div>`;
  });
 }
-function closeCart(){cartModal.style.display="none";}
+const productsDiv=document.getElementById("products");
+renderProducts();
 
-function checkout(){
- if(cart.length==0){alert("Cart empty");return;}
- customerInfo.style.display="block";
- customerInfoFooter.style.display="block";
- setTimeout(()=>customerInfo.style.bottom="80px",50);
+function add(name,price){
+ cart.push({name,price});
+ renderCart();
 }
 
-function confirmCustomerInfo(){
- let wa=customerWhatsApp.value;
- let email=customerEmail.value;
- if(!wa){alert("WhatsApp required");return;}
-
- alert("Dial *115# to pay");
- window.location.href="tel:*115#";
-
- setTimeout(()=>{
-  let msg="Vees Thrift Order:%0A";
-  cart.forEach(i=>msg+=`${i.name} - ZMW ${i.price}%0A`);
-  msg+=`Total: ZMW ${total}`;
-
-  window.open(`https://wa.me/260971415665?text=${msg}`);
-
-  if(email){
-   emailjs.send("service_59an2yo","template_yje59gi",{
-    to_email:email,
-    message:"Thank you for shopping with Vees Thrift 💖"
-   });
-  }
-
-  cart=[];total=0;
-  document.getElementById("total").innerText=0;
-  customerInfo.style.display="none";
-  customerInfoFooter.style.display="none";
- },600);
+function remove(i){
+ cart.splice(i,1);renderCart();
 }
 
-setInterval(()=>{
- let d=new Date();
- datetime.innerText=d.toLocaleDateString()+" | "+d.toLocaleTimeString();
-},1000);
+function renderCart(){
+ let html="";let t=0;
+ cart.forEach((c,i)=>{
+  t+=c.price;
+  html+=`<div class="cart-item">${c.name} K${c.price}
+  <button onclick="remove(${i})">X</button></div>`;
+ });
+ document.getElementById("cartItems").innerHTML=html;
+ document.getElementById("total").innerText=t;
+}
 
-if("serviceWorker"in navigator){
+function openCustomer(){document.getElementById("customerBox").style.display="block"}
+function closeCustomer(){document.getElementById("customerBox").style.display="none"}
+
+function sendOrder(){
+ let msg=`Vees Thrift Order%0A
+ Name:${cname.value}%0A
+ Phone:${cphone.value}%0A
+ Address:${caddress.value}%0A
+ Date:${new Date().toLocaleString()}%0A
+ Items:%0A`;
+
+ cart.forEach(c=>msg+=`${c.name} K${c.price}%0A`);
+ msg+=`Total: K${document.getElementById("total").innerText}`;
+
+ window.open(`https://wa.me/260971415665?text=${msg}`);
+}
+
+function pay(){
+ alert("Pay to:\n0971415665 (Vivien Lungu)\nOR\nAgent 20202857 (Emmanuel Sakala)");
+ location.href="tel:*115#";
+}
+
+function copyPay(){
+ navigator.clipboard.writeText(
+ "0971415665 - Vivien Lungu\nAgent: 20202857 Emmanuel Sakala"
+ );
+ alert("Payment details copied");
+}
+
+function search(v){
+ renderProducts(products.filter(p=>p.name.toLowerCase().includes(v.toLowerCase())));
+}
+
+if('serviceWorker'in navigator){
  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
