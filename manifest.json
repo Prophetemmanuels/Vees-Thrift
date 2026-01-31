@@ -1,0 +1,21 @@
+{
+  "name": "Vees Thrift",
+  "short_name": "VeesThrift",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f6c1d9",
+  "theme_color": "#d4af37",
+  "description": "Online thrift store. Browse, add to cart, and pay via mobile money.",
+  "icons": [
+    {
+      "src": "images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vees Thrift - Admin Dashboard</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+body{font-family:Segoe UI,sans-serif;margin:20px;}
+h2{text-align:center;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;}
+th{background:#f6c1d9;}
+</style>
+</head>
+<body>
+<h2>Vees Thrift - All Orders</h2>
+<table>
+<tr><th>Product</th><th>Price</th><th>Date</th><th>Time</th></tr>
+<tbody id="orders"></tbody>
+</table>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "veesthrift.firebaseapp.com",
+  databaseURL: "https://veesthrift-default-rtdb.firebaseio.com",
+  projectId: "veesthrift",
+  storageBucket: "veesthrift.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const ordersTable = document.getElementById("orders");
+db.ref('orders').on('value', snapshot => {
+ ordersTable.innerHTML="";
+ snapshot.forEach(snap=>{
+   const data = snap.val();
+   const row = document.createElement("tr");
+   row.innerHTML=`<td>${data.product}</td><td>ZMW ${data.price}</td><td>${data.date}</td><td>${data.time}</td>`;
+   ordersTable.appendChild(row);
+ });
+});
+</script>
+</body>
+</html>
