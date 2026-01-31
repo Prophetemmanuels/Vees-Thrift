@@ -6,15 +6,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-  (function(){emailjs.init("YOUR_PUBLIC_KEY");})();
-</script>
+<script> (function(){emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");})(); </script>
 
 <style>
-:root{--pink:#f6c1d9;--gold:#d4af37;--white:#ffffff;}
-body{margin:0;font-family:Segoe UI,sans-serif;background:linear-gradient(to bottom,var(--pink),var(--white));}
-header{display:flex;align-items:center;justify-content:space-between;padding:10px;background:white;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-header img{width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);}
+:root{
+ --pink:#f6c1d9;
+ --gold:#d4af37;
+ --white:#ffffff;
+}
+body{
+ margin:0;font-family:Segoe UI,sans-serif;
+ background:linear-gradient(to bottom,var(--pink),var(--white));
+}
+header{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:10px;
+ background:white;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+header img{
+ width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);
+}
 header h2{margin-left:10px;}
 #datetime{font-size:14px;color:#555;}
 .search{padding:10px;}
@@ -37,9 +49,45 @@ header h2{margin-left:10px;}
 #purchaseLog{background:white;margin:15px;padding:10px;border-radius:10px;max-height:200px;overflow:auto;}
 #purchaseLog h3{font-size:16px;margin-bottom:8px;}
 .purchase-item{font-size:13px;border-bottom:1px solid #ddd;padding:5px 0;}
-#customerInfo{display:none;background:var(--pink);color:#000;padding:20px;border-radius:15px 15px 0 0;box-shadow:0 -2px 6px rgba(0,0,0,.2);max-height:80vh;overflow-y:auto;position:fixed;bottom:-100%;left:0;width:100%;transition:bottom 0.5s ease-in-out;}
-#customerInfo input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #ccc;box-sizing:border-box;}
-#customerInfo button{width:100%;padding:10px;margin-top:10px;border:none;border-radius:20px;background:var(--gold);color:white;font-weight:bold;cursor:pointer;}
+#customerInfo{
+ display:none;
+ background:var(--pink);
+ color:#000;
+ padding:20px 15px;
+ border-radius: 15px 15px 0 0;
+ box-shadow:0 -2px 6px rgba(0,0,0,.2);
+ max-height:90vh;
+ overflow-y:auto;
+ position: fixed;
+ bottom:-100%;
+ left:0;
+ width:100%;
+ transition:bottom 0.5s ease-in-out;
+}
+#customerInfo input{
+ width:100%;
+ padding:10px;
+ margin:8px 0;
+ border-radius:8px;
+ border:1px solid #ccc;
+ box-sizing:border-box;
+}
+#customerInfo div{
+ position:sticky;
+ bottom:0;
+ background:var(--pink);
+ padding:10px 0;
+}
+#customerInfo button{
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:20px;
+ background:var(--gold);
+ color:white;
+ font-weight:bold;
+ cursor:pointer;
+}
 </style>
 </head>
 
@@ -47,7 +95,7 @@ header h2{margin-left:10px;}
 
 <header>
  <div style="display:flex; align-items:center;">
-  <img src="images/icon.png" alt="Vees Logo">
+  <img src="images/icon.png" alt="Vees Thrift Logo">
   <h2>Vees Thrift</h2>
  </div>
  <div id="datetime"></div>
@@ -68,7 +116,7 @@ header h2{margin-left:10px;}
  <div class="product" onclick="openProduct('White Sneakers','images/p3.jpg',280)">
   <img src="images/p3.jpg"><h4>White Sneakers</h4><p class="price">ZMW 280</p>
  </div>
- <!-- add more products -->
+ <!-- add more products as needed -->
 </div>
 
 <div class="cart">
@@ -83,7 +131,9 @@ header h2{margin-left:10px;}
 <!-- Full View Modal -->
 <div class="modal" id="modal">
  <button class="back" onclick="closeModal()">⬅ Back</button>
- <img id="modalImg"><h3 id="modalName"></h3><p id="modalPrice"></p>
+ <img id="modalImg">
+ <h3 id="modalName"></h3>
+ <p id="modalPrice"></p>
  <button onclick="addToCart()">Add to Cart</button>
 </div>
 
@@ -101,7 +151,9 @@ header h2{margin-left:10px;}
  <input type="text" id="customerWhatsApp" placeholder="e.g. 0971xxxxxx"><br>
  <label>Email (Optional):</label><br>
  <input type="email" id="customerEmail" placeholder="your@email.com"><br>
- <button onclick="confirmCustomerInfo()">Finish & Pay</button>
+ <div>
+   <button onclick="confirmCustomerInfo()">Finish & Pay</button>
+ </div>
 </div>
 
 <!-- Purchase Log -->
@@ -133,7 +185,7 @@ function renderCart(){cartItemsDiv.innerHTML="";if(cart.length===0){cartItemsDiv
 /* CHECKOUT */
 function checkout(){if(cart.length===0){alert("Cart empty!");return;}customerInfoDiv.style.display="block";setTimeout(()=>{customerInfoDiv.style.bottom="0";},50);}
 
-/* CUSTOMER INFO */
+/* CONFIRM CUSTOMER INFO */
 function confirmCustomerInfo(){
  let customerWA=document.getElementById("customerWhatsApp").value;
  let customerEmail=document.getElementById("customerEmail").value;
@@ -158,16 +210,16 @@ function confirmCustomerInfo(){
      cart=[];total=0;document.getElementById("total").innerText=0;
      cartModal.style.display="none";customerInfoDiv.style.bottom="-100%";customerInfoDiv.style.display="none";
 
-     // WhatsApp
+     // WhatsApp order
      window.open(`https://wa.me/260971415665?text=${msg}`);
 
-     // Email thanks
+     // Email appreciation
      if(customerEmail){
        emailjs.send("service_59an2yo","template_yje59gi",{
          to_email:customerEmail,
          to_whatsapp:customerWA,
          message:"Thank you for shopping with Vees Thrift! We appreciate your purchase."
-       },"lS0EqS1UcioO4Cm1B").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));
+       },"YOUR_EMAILJS_PUBLIC_KEY").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));
      }
      alert("Thank you! Your order has been sent.");
    }
@@ -188,5 +240,6 @@ setInterval(updateTime,1000);updateTime();
 /* SERVICE WORKER */
 if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js").then(()=>console.log("SW Registered"));}
 </script>
+
 </body>
 </html>
