@@ -1,25 +1,14 @@
 const CACHE_NAME = "vees-thrift-cache-v1";
 const urlsToCache = ["index.html","manifest.json","images/icon.png"];
 
-// Install SW
 self.addEventListener("install", e => {
- e.waitUntil(
-   caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
- );
+ e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
 });
 
-// Activate SW
 self.addEventListener("activate", e => {
- e.waitUntil(
-   caches.keys().then(keys => Promise.all(
-     keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-   ))
- );
+ e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));
 });
 
-// Fetch
 self.addEventListener("fetch", e => {
- e.respondWith(
-   caches.match(e.request).then(response => response || fetch(e.request))
- );
+ e.respondWith(caches.match(e.request).then(response => response || fetch(e.request)));
 });
