@@ -1,21 +1,20 @@
 {
   "name": "Vees Thrift",
-  "short_name": "Vees",
-  "description": "Vees Thrift Online Shopping App",
-  "start_url": "./index.html",
-  "scope": "./",
+  "short_name": "VeesThrift",
+  "description": "Online thrift store for Vees Thrift",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#f7c6d0",
-  "orientation": "portrait",
+  "theme_color": "#f6c1d9",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "images/logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "images/logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
