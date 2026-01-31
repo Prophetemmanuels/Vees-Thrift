@@ -1,42 +1,42 @@
-const CACHE_NAME = 'vees-thrift-cache-v1';
+const CACHE_NAME = "vees-thrift-cache-v1";
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/icon.png',
-  '/images/p1.jpg',
-  '/images/p2.jpg',
-  '/images/p3.jpg'
-  // Add all other product images here
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/images/icon.png",
+  "/images/p1.jpg",
+  "/images/p2.jpg",
+  "/images/p3.jpg",
+  // Add more product images here
 ];
 
-// Install SW and cache files
-self.addEventListener('install', e => {
-  e.waitUntil(
+self.addEventListener("install", event => {
+  event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
+      console.log("Opened cache");
       return cache.addAll(urlsToCache);
     })
   );
 });
 
-// Activate SW
-self.addEventListener('activate', e => {
-  e.waitUntil(
+// Activate and clean old caches
+self.addEventListener("activate", event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.map(key => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if(key !== CACHE_NAME) return caches.delete(key);
         })
       )
     )
   );
 });
 
-// Fetch requests from cache first
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
+// Fetch handler: serve cached files if offline
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
     })
   );
 });

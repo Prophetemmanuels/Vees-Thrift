@@ -8,14 +8,10 @@
 <!-- Manifest -->
 <link rel="manifest" href="manifest.json">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <!-- EmailJS -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script type="text/javascript">
-   (function(){emailjs.init("YOUR_PUBLIC_KEY");})();
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  (function(){emailjs.init("YOUR_PUBLIC_KEY");})();
 </script>
 
 <style>
@@ -35,6 +31,7 @@ header h2{margin-left:10px}
 .cart{position:fixed;bottom:0;width:100%;background:white;padding:10px;box-shadow:0 -2px 6px rgba(0,0,0,.1);display:flex;justify-content:space-between;align-items:center;z-index:5;}
 .cart button{background:var(--pink);padding:8px 14px;border:none;border-radius:20px;cursor:pointer;}
 .whatsapp{position:fixed;right:15px;bottom:90px;background:#25D366;color:white;padding:15px;border-radius:50%;text-decoration:none;font-size:20px;z-index:5;}
+.whatsapp-group{position:fixed;right:15px;bottom:150px;background:#128C7E;color:white;padding:15px;border-radius:50%;text-decoration:none;font-size:20px;z-index:5;}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:10;padding:15px;overflow:auto;}
 .modal img{width:100%;border-radius:10px;}
 .back{margin-bottom:10px;}
@@ -63,7 +60,7 @@ header h2{margin-left:10px}
 </div>
 
 <div class="products">
- <!-- ===== PRODUCT SLOTS ===== -->
+ <!-- PRODUCT SLOTS -->
  <div class="product" onclick="openProduct('Pink Dress','images/p1.jpg',250)">
   <img src="images/p1.jpg"><h4>Pink Dress</h4><p class="price">ZMW 250</p>
  </div>
@@ -73,7 +70,7 @@ header h2{margin-left:10px}
  <div class="product" onclick="openProduct('White Sneakers','images/p3.jpg',280)">
   <img src="images/p3.jpg"><h4>White Sneakers</h4><p class="price">ZMW 280</p>
  </div>
- <!-- Add more products as needed -->
+ <!-- Add more products here -->
 </div>
 
 <div class="cart">
@@ -83,6 +80,7 @@ header h2{margin-left:10px}
 </div>
 
 <a class="whatsapp" href="https://wa.me/260971415665">💬</a>
+<a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF" target="_blank">👥</a>
 
 <!-- Full View Modal -->
 <div class="modal" id="modal">
@@ -115,19 +113,6 @@ header h2{margin-left:10px}
 </div>
 
 <script>
-/* Firebase Config */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "veesthrift.firebaseapp.com",
-  databaseURL: "https://veesthrift-default-rtdb.firebaseio.com",
-  projectId: "veesthrift",
-  storageBucket: "veesthrift.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
 /* VARIABLES */
 let cart=[], total=0, current={};
 let purchases = JSON.parse(localStorage.getItem("purchases")) || [];
@@ -155,22 +140,41 @@ function confirmCustomerInfo(){
  let customerWA=document.getElementById("customerWhatsApp").value;
  let customerEmail=document.getElementById("customerEmail").value;
  if(!customerWA){alert("WhatsApp number is required!");return;}
- let msg="Vees Thrift Order:%0A";
- let now=new Date();
- cart.forEach(i=>{
-  msg+=`${i.name} - ZMW ${i.price} on ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}%0A`;
-  db.ref('orders').push({product:i.name,price:i.price,date:now.toLocaleDateString(),time:now.toLocaleTimeString(),customerWA,customerEmail});
-  purchases.unshift({product:i.name,price:i.price,date:now.toLocaleDateString(),time:now.toLocaleTimeString(),customerWA,customerEmail});
- });
- let confirmPayment=confirm(`Your total amount is ZMW ${total}.\n\nDo you want to proceed with payment?`);
- if(!confirmPayment) return;
- localStorage.setItem("purchases",JSON.stringify(purchases));
- renderPurchases();
- cart=[];total=0;document.getElementById("total").innerText=0;cartModal.style.display="none";document.getElementById("customerInfo").style.display="none";
- navigator.clipboard.writeText("0971415665");
- window.open(`https://wa.me/260971415665?text=${msg}`);
- window.location.href="tel:*115#";
- if(customerEmail){emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID",{to_email:customerEmail,to_whatsapp:customerWA,message:"Thank you for shopping with Vees Thrift! We appreciate your purchase."},"YOUR_PUBLIC_KEY").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));}
+ let totalAmount = total;
+ if(!confirm(`Your total amount is ZMW ${totalAmount}.\nClick OK to dial *115# and make the payment.`)) return;
+
+ // Dial USSD for payment
+ window.location.href = "tel:*115#";
+
+ // After payment, confirm to send WhatsApp
+ setTimeout(()=>{
+   if(confirm("Have you completed the payment? Click OK to send your order to WhatsApp.")){
+     let msg="Vees Thrift Order:%0A";
+     let now=new Date();
+     cart.forEach(i=>{
+       msg+=`${i.name} - ZMW ${i.price} on ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}%0A`;
+       purchases.unshift({product:i.name,price:i.price,date:now.toLocaleDateString(),time:now.toLocaleTimeString(),customerWA,customerEmail});
+     });
+     msg+=`Total: ZMW ${totalAmount}`;
+     localStorage.setItem("purchases",JSON.stringify(purchases));
+     renderPurchases();
+     cart=[];total=0;document.getElementById("total").innerText=0;cartModal.style.display="none";document.getElementById("customerInfo").style.display="none";
+
+     // Open WhatsApp with order
+     window.open(`https://wa.me/260971415665?text=${msg}`);
+
+     // Send appreciation email
+     if(customerEmail){
+       emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID",{
+         to_email:customerEmail,
+         to_whatsapp:customerWA,
+         message:"Thank you for shopping with Vees Thrift! We appreciate your purchase."
+       },"YOUR_PUBLIC_KEY").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));
+     }
+
+     alert("Thank you! Your order has been sent.");
+   }
+ }, 500);
 }
 
 /* RENDER PURCHASE LOG */
@@ -183,6 +187,9 @@ search.addEventListener("input",e=>{let v=e.target.value.toLowerCase();document.
 /* LIVE DATE & TIME */
 function updateTime(){let now=new Date();document.getElementById("datetime").innerText=now.toLocaleDateString()+" | "+now.toLocaleTimeString();}
 setInterval(updateTime,1000);updateTime();
+
+/* SERVICE WORKER */
+if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js").then(()=>console.log("SW Registered"));}
 </script>
 
 </body>

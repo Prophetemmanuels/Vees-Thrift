@@ -1,11 +1,12 @@
 {
   "name": "Vees Thrift",
-  "short_name": "VeesThrift",
+  "short_name": "VThrift",
+  "description": "Shop the latest thrift products, add to cart, and pay via mobile money. WhatsApp confirmation and purchase record included.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f6c1d9",
   "theme_color": "#d4af37",
-  "description": "Online thrift store. Browse, add to cart, and pay via mobile money.",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "images/icon.png",
