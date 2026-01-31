@@ -1,12 +1,11 @@
 {
   "name": "Vees Thrift",
   "short_name": "VeesThrift",
-  "description": "Online thrift store for Vees Thrift",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#f6c1d9",
-  "orientation": "portrait-primary",
+  "background_color": "#f6c1d9",
+  "theme_color": "#d4af37",
+  "description": "Order thrift products online with Vees Thrift.",
   "icons": [
     {
       "src": "images/logo.png",

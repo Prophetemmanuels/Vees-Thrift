@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script> (function(){emailjs.init("YOUR_PUBLIC_KEY");})(); </script>
 
 <style>
@@ -15,31 +16,47 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 header img{width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);}
 header h2{margin-left:10px}
 #datetime{font-size:14px;color:#555;}
+
+/* SEARCH */
 .search{padding:10px;}
 .search input{width:100%;padding:10px;border-radius:20px;border:1px solid #ccc;}
+
+/* PRODUCTS */
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px;padding:15px;}
 .product{background:white;border-radius:15px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center;cursor:pointer;transition:.2s;}
 .product:hover{transform:scale(1.02);}
 .product img{width:100%;border-radius:10px;}
 .price{color:var(--gold);font-weight:bold;}
+
+/* CART */
 .cart{position:fixed;bottom:0;width:100%;background:white;padding:10px;box-shadow:0 -2px 6px rgba(0,0,0,.1);display:flex;justify-content:space-between;align-items:center;z-index:5;}
 .cart button{background:var(--pink);padding:8px 14px;border:none;border-radius:20px;cursor:pointer;}
+
+/* WhatsApp */
 .whatsapp{position:fixed;right:15px;bottom:90px;background:#25D366;color:white;padding:15px;border-radius:50%;text-decoration:none;font-size:20px;z-index:5;}
 .whatsapp-group{position:fixed;right:15px;bottom:150px;background:#128C7E;color:white;padding:15px;border-radius:50%;text-decoration:none;font-size:20px;z-index:5;}
+
+/* FULL VIEW MODAL */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:10;padding:15px;overflow:auto;}
 .modal img{width:100%;border-radius:10px;}
 .back{margin-bottom:10px;}
+
+/* CART MODAL */
 #cartModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:15;padding:15px;overflow:auto;}
 .cart-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #ddd;}
 .cart-item button{background:red;color:white;padding:3px 6px;border-radius:5px;cursor:pointer;border:none;}
-#purchaseLog{background:white;margin:15px;padding:10px;border-radius:10px;max-height:250px;overflow:auto;}
+
+/* PURCHASE LOG */
+#purchaseLog{background:white;margin:15px;padding:10px;border-radius:10px;max-height:200px;overflow:auto;}
 #purchaseLog h3{font-size:16px;margin-bottom:8px;}
 .purchase-item{font-size:13px;border-bottom:1px solid #ddd;padding:5px 0;}
-#customerInfo{display:none;background:white;margin:0;padding:20px;border-radius:15px 15px 0 0;box-shadow:0 -2px 6px rgba(0,0,0,.2);max-height:70%;overflow-y:auto;position:fixed;bottom:-500px;left:0;width:100%;transition:bottom 0.5s ease-in-out;}
+#clearLog{background:red;color:white;padding:5px 10px;border:none;border-radius:5px;margin-bottom:10px;cursor:pointer;}
+
+/* CUSTOMER INFO */
+#customerInfo{display:none;background:white;margin:0;padding:20px;border-radius:15px 15px 0 0;box-shadow:0 -2px 6px rgba(0,0,0,.2);max-height:60%;overflow:auto;position:fixed;bottom:-400px;left:0;width:100%;transition:bottom 0.5s ease-in-out;}
 #customerInfo input{width:100%;padding:8px;margin:5px 0;border-radius:5px;border:1px solid #ccc;}
 #customerInfo button{width:100%;margin-top:10px;padding:10px;border:none;border-radius:20px;background:var(--pink);cursor:pointer;}
-#customerInfo .closeBtn{background:#d9534f;color:white;margin-bottom:10px;}
-.clearBtn{background:#d9534f;color:white;padding:5px 10px;margin-top:5px;border:none;border-radius:10px;cursor:pointer;}
+#customerInfo .closeBtn{background:#ccc;margin-top:5px;}
 </style>
 </head>
 
@@ -47,7 +64,7 @@ header h2{margin-left:10px}
 
 <header>
  <div style="display:flex; align-items:center;">
-  <img src="images/icon.png">
+  <img src="images/logo.png">
   <h2>Vees Thrift</h2>
  </div>
  <div id="datetime"></div>
@@ -72,43 +89,46 @@ header h2{margin-left:10px}
 <div class="cart">
  <span>Total: ZMW <b id="total">0</b></span>
  <button onclick="openCartModal()">View Cart</button>
- <button onclick="openCustomerInfo()">Pay Now</button>
+ <button onclick="checkout()">Pay Now</button>
 </div>
 
 <a class="whatsapp" href="https://wa.me/260971415665">💬</a>
 <a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF" target="_blank">👥</a>
 
+<!-- Full Product Modal -->
 <div class="modal" id="modal">
  <button class="back" onclick="closeModal()">⬅ Back</button>
  <img id="modalImg"><h3 id="modalName"></h3><p id="modalPrice"></p>
  <button onclick="addToCart()">Add to Cart</button>
 </div>
 
+<!-- Cart Modal -->
 <div class="modal" id="cartModal">
  <button class="back" onclick="closeCartModal()">⬅ Back</button>
  <h3>Cart Items</h3>
  <div id="cartItems"></div>
- <button onclick="sendOrderWhatsApp()">Send Order via WhatsApp</button>
- <button onclick="makeTransaction()">Make Transaction (*115#)</button>
 </div>
 
+<!-- Customer Info -->
 <div id="customerInfo">
- <button class="closeBtn" onclick="closeCustomerInfo()">Close</button>
  <h3>Customer Info</h3>
  <label>WhatsApp Number:</label><br>
  <input type="text" id="customerWhatsApp" placeholder="e.g. 0971xxxxxx"><br>
  <label>Email (Optional):</label><br>
  <input type="email" id="customerEmail" placeholder="your@email.com"><br>
- <button onclick="confirmCustomerInfo()">Submit & Finish Payment</button>
+ <button onclick="confirmCustomerInfo()">Finish & Send Order</button>
+ <button class="closeBtn" onclick="closeCustomerInfo()">Close</button>
 </div>
 
+<!-- Purchase Log -->
 <div id="purchaseLog">
+ <button id="clearLog" onclick="clearPurchaseLog()">Clear Records</button>
  <h3>Purchase Records</h3>
  <div id="purchaseList"></div>
- <button class="clearBtn" onclick="clearPurchaseRecords()">Clear Purchase Records</button>
 </div>
 
 <script>
+/* VARIABLES */
 let cart=[], total=0, current={};
 let purchases = JSON.parse(localStorage.getItem("purchases")) || [];
 const modal=document.getElementById("modal");
@@ -117,46 +137,81 @@ const cartItemsDiv=document.getElementById("cartItems");
 const purchaseList=document.getElementById("purchaseList");
 const customerInfoDiv=document.getElementById("customerInfo");
 
-/* MODALS */
+/* MODAL FUNCTIONS */
 function openProduct(name,img,price){current={name,price};modal.style.display="block";modalImg.src=img;modalName.innerText=name;modalPrice.innerText="ZMW "+price;}
 function closeModal(){modal.style.display="none";}
 function openCartModal(){cartModal.style.display="block";renderCart();}
 function closeCartModal(){cartModal.style.display="none";}
 function openCustomerInfo(){customerInfoDiv.style.display="block";setTimeout(()=>{customerInfoDiv.style.bottom="0";},50);}
-function closeCustomerInfo(){customerInfoDiv.style.bottom="-500px";setTimeout(()=>{customerInfoDiv.style.display="none";},500);}
+function closeCustomerInfo(){customerInfoDiv.style.bottom="-400px";setTimeout(()=>{customerInfoDiv.style.display="none";},500);}
 
-/* CART */
+/* CART FUNCTIONS */
 function addToCart(){cart.push(current);total+=current.price;document.getElementById("total").innerText=total;closeModal();alert(current.name+" added to cart!");renderCart();}
 function removeFromCart(i){total-=cart[i].price;cart.splice(i,1);document.getElementById("total").innerText=total;renderCart();}
 function renderCart(){cartItemsDiv.innerHTML="";if(cart.length===0){cartItemsDiv.innerHTML="<p>Your cart is empty.</p>";return;}cart.forEach((item,i)=>{const div=document.createElement("div");div.className="cart-item";div.innerHTML=`${item.name} - ZMW ${item.price} <button onclick="removeFromCart(${i})">Remove</button>`;cartItemsDiv.appendChild(div);});}
 
-/* SEND ORDER */
-function sendOrderWhatsApp(){if(cart.length===0){alert("Cart empty!");return;}let msg="Vees Thrift Order:%0A";cart.forEach(i=>{msg+=`${i.name} - ZMW ${i.price}%0A`});msg+=`Total: ZMW ${total}`;window.open(`https://wa.me/260971415665?text=${msg}`);}
+/* CHECKOUT WITH CUSTOMER INFO */
+function checkout(){if(cart.length===0){alert("Cart empty!");return;}openCustomerInfo();}
 
-/* MAKE TRANSACTION */
-function makeTransaction(){window.location.href="tel:*115#";}
-
-/* CONFIRM CUSTOMER INFO */
+/* CONFIRM CUSTOMER INFO & PROCESS PAYMENT + DUAL WHATSAPP + RECEIPT */
 function confirmCustomerInfo(){
  let customerWA=document.getElementById("customerWhatsApp").value;
  let customerEmail=document.getElementById("customerEmail").value;
  if(!customerWA){alert("WhatsApp number required!");return;}
- let now=new Date();
- cart.forEach(i=>{purchases.unshift({product:i.name,price:i.price,date:now.toLocaleDateString(),time:now.toLocaleTimeString(),customerWA,customerEmail});});
- localStorage.setItem("purchases",JSON.stringify(purchases));
- renderPurchases();
- cart=[];total=0;document.getElementById("total").innerText=0;
- closeCustomerInfo(); closeCartModal();
- if(customerEmail){emailjs.send("service_59an2yo","template_yje59gi",{to_email:customerEmail,to_whatsapp:customerWA,message:"Thank you for shopping with Vees Thrift! We appreciate your purchase."},"lS0EqS1UcioO4Cm1B").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));}
- alert("Thank you! Your order has been recorded.");
+ let totalAmount = total;
+ if(!confirm(`Your total amount is ZMW ${totalAmount}.\nClick OK to dial *115# to make payment.`)) return;
+
+ // Dial USSD
+ window.location.href="tel:*115#";
+
+ setTimeout(()=>{
+   if(confirm("Have you completed payment? Click OK to send your order via WhatsApp.")){
+     let now=new Date();
+     let receiptText = `Vees Thrift Receipt\nDate: ${now.toLocaleDateString()} Time: ${now.toLocaleTimeString()}\n\n`;
+     let msg="Vees Thrift Order:%0A";
+     cart.forEach(i=>{
+       msg+=`${i.name} - ZMW ${i.price}%0A`;
+       receiptText+=`${i.name} - ZMW ${i.price}\n`;
+       purchases.unshift({product:i.name,price:i.price,date:now.toLocaleDateString(),time:now.toLocaleTimeString(),customerWA,customerEmail});
+     });
+     msg+=`Total: ZMW ${totalAmount}`;
+     receiptText+=`\nTotal: ZMW ${totalAmount}`;
+     localStorage.setItem("purchases",JSON.stringify(purchases));
+     renderPurchases();
+     cart=[];total=0;document.getElementById("total").innerText=0;
+     cartModal.style.display="none";closeCustomerInfo();
+
+     // Send to WhatsApp numbers
+     window.open(`https://wa.me/260971415665?text=${msg}`);
+     window.open(`https://wa.me/260760528887?text=${msg}`);
+
+     // Email appreciation
+     if(customerEmail){
+       emailjs.send("service_59an2yo","template_yje59gi",{
+         to_email:customerEmail,
+         to_whatsapp:customerWA,
+         message:"Thank you for shopping with Vees Thrift! We appreciate your purchase."
+       },"lS0EqS1UcioO4Cm1B").then(res=>console.log("Email sent!",res.status),err=>console.log("Email failed",err));
+     }
+
+     // Generate downloadable receipt
+     const blob = new Blob([receiptText], {type: "text/plain"});
+     const link = document.createElement("a");
+     link.href = URL.createObjectURL(blob);
+     link.download = `VeesThrift_Receipt_${now.getTime()}.txt`;
+     document.body.appendChild(link);
+     link.click();
+     document.body.removeChild(link);
+
+     alert("Thank you! Your order has been sent and receipt downloaded.");
+   }
+ }, 500);
 }
 
 /* PURCHASE LOG */
 function renderPurchases(){purchaseList.innerHTML="";purchases.forEach(p=>{const div=document.createElement("div");div.className="purchase-item";div.innerHTML=`${p.product} - ZMW ${p.price}<br><small>${p.date} at ${p.time}</small>`;purchaseList.appendChild(div);});}
+function clearPurchaseLog(){if(confirm("Clear all purchase records?")){purchases=[];localStorage.setItem("purchases",JSON.stringify(purchases));renderPurchases();} }
 renderPurchases();
-
-/* CLEAR PURCHASE RECORDS */
-function clearPurchaseRecords(){if(confirm("Clear all purchase records?")){purchases=[];localStorage.removeItem("purchases");renderPurchases();}}
 
 /* SEARCH FILTER */
 search.addEventListener("input",e=>{let v=e.target.value.toLowerCase();document.querySelectorAll(".product").forEach(p=>{p.style.display=p.innerText.toLowerCase().includes(v)?"block":"none";});});
