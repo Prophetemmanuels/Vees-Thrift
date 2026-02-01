@@ -49,11 +49,11 @@ header h2{margin-left:10px;}
 #purchaseLog{background:white;margin:15px;padding:10px;border-radius:10px;max-height:200px;overflow:auto;}
 #purchaseLog h3{font-size:16px;margin-bottom:8px;}
 .purchase-item{font-size:13px;border-bottom:1px solid #ddd;padding:5px 0;}
-#customerInfo{
-  display:none;background:white;margin:0;padding:20px;border-radius:15px 15px 0 0;
-  box-shadow:0 -2px 6px rgba(0,0,0,.2);max-height:70%;overflow:auto;
-  position:fixed;bottom:-400px;left:0;width:100%;transition:bottom 0.5s ease-in-out;
+#customerInfo{display:none;background:white;margin:0;padding:20px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,.2);max-height:70%;overflow:auto;position:fixed;left:50%;bottom:-100%;transform:translateX(-50%);width:90%; transition:bottom 0.5s ease-in-out;}
 }
+#customerInfo{display:flex; flex-direction:column;}
+#customerInfo label{margin-top:10px; font-weight:600; font-size:14px;}
+#customerInfo input{ margin-bottom:10px;}
 #customerInfo input{width:100%;padding:8px;margin:5px 0;border-radius:5px;border:1px solid #ccc;}
 #customerInfo button{width:100%;margin-top:10px;padding:10px;border:none;border-radius:20px;background:var(--pink);cursor:pointer;}
 #customerInfo .closeBtn{background:red;color:white;margin-bottom:10px;}
@@ -147,8 +147,8 @@ function openProduct(name,img,price){current={name,price};modal.style.display="b
 function closeModal(){modal.style.display="none";}
 function openCartModal(){cartModal.style.display="block";renderCart();}
 function closeCartModal(){cartModal.style.display="none";}
-function openCustomerInfo(){customerInfoDiv.style.display="block";setTimeout(()=>{customerInfoDiv.style.bottom="0";},50);}
-function closeCustomerInfo(){customerInfoDiv.style.bottom="-400px";setTimeout(()=>{customerInfoDiv.style.display="none";},500);}
+function openCustomerInfo(){customerInfoDiv.style.display="block";setTimeout(()=>{customerInfoDiv.style.bottom="50%";},50);}
+function closeCustomerInfo(){customerInfoDiv.style.bottom="-100%";setTimeout(()=>{customerInfoDiv.style.display="none";},500);}
 
 // CART FUNCTIONS
 function addToCart(){cart.push(current);total+=current.price;document.getElementById("total").innerText=total;closeModal();alert(current.name+" added to cart!");renderCart();}
