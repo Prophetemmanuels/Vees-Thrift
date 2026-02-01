@@ -7,7 +7,6 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script> (function(){emailjs.init("YOUR_PUBLIC_KEY");})(); </script>
-
 <style>
 :root{
   --pink:#f6c1d9;
@@ -49,14 +48,28 @@ header h2{margin-left:10px;}
 #purchaseLog{background:white;margin:15px;padding:10px;border-radius:10px;max-height:200px;overflow:auto;}
 #purchaseLog h3{font-size:16px;margin-bottom:8px;}
 .purchase-item{font-size:13px;border-bottom:1px solid #ddd;padding:5px 0;}
-#customerInfo{display:none;background:white;margin:0;padding:20px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,.2);max-height:70%;  padding-bottom:80px; overflow:auto;position:fixed;left:50%;bottom:-100%;transform:translateX(-50%);width:90%; transition:bottom 0.5s ease-in-out;}
+#customerInfo{
+  display:none;
+  position:fixed;
+  left:0;
+  bottom:-100%;
+  width:100%;
+  height:90vh;
+  background:white;
+  padding:20px;
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 15px rgba(0,0,0,.3);
+  overflow-y:auto;
+  z-index:20;
+  transition:bottom 0.4s ease-in-out;
+  flex-direction:column;
 }
-#customerInfo{display:flex; flex-direction:column;}
-#customerInfo label{margin-top:10px; font-weight:600; font-size:14px;}
-#customerInfo input{ margin-bottom:10px;}
-#customerInfo input{width:100%;padding:8px;margin:5px 0;border-radius:5px;border:1px solid #ccc;}
-#customerInfo button{width:100%;margin-top:10px;padding:10px;border:none;border-radius:20px;background:var(--pink);cursor:pointer;}
-#customerInfo .closeBtn{background:red;color:white;margin-bottom:10px;}
+body.modal-open{overflow:hidden;}
+#customerInfo label{margin-top:10px;font-weight:600;font-size:14px;}
+#customerInfo input{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;}
+#customerInfo button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:25px;background:var(--pink);font-size:16px;}
+#customerInfo .closeBtn{background:red;color:white;}
+#customerInfo button:last-child{position:sticky;bottom:10px;}
 #receiptCanvas{display:none;}
 </style>
 </head>
@@ -76,7 +89,6 @@ header h2{margin-left:10px;}
 </div>
 
 <div class="products">
- <!-- Product slots -->
  <div class="product" onclick="openProduct('Pink Dress','images/p1.jpg',250)">
   <img src="images/p1.jpg"><h4>Pink Dress</h4><p class="price">ZMW 250</p>
  </div>
@@ -86,7 +98,6 @@ header h2{margin-left:10px;}
  <div class="product" onclick="openProduct('White Sneakers','images/p3.jpg',280)">
   <img src="images/p3.jpg"><h4>White Sneakers</h4><p class="price">ZMW 280</p>
  </div>
- <!-- add more products by copying the div and changing the info -->
 </div>
 
 <div class="cart">
@@ -98,7 +109,7 @@ header h2{margin-left:10px;}
 <a class="whatsapp" href="https://wa.me/260971415665">💬</a>
 <a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF" target="_blank">👥</a>
 
-<!-- Full View Modal -->
+<!-- Product Modal -->
 <div class="modal" id="modal">
  <button class="back" onclick="closeModal()">⬅ Back</button>
  <img id="modalImg"><h3 id="modalName"></h3><p id="modalPrice"></p>
@@ -112,7 +123,7 @@ header h2{margin-left:10px;}
  <div id="cartItems"></div>
 </div>
 
-<!-- Customer Info -->
+<!-- Customer Info Modal -->
 <div id="customerInfo">
  <button class="closeBtn" onclick="closeCustomerInfo()">Close</button>
  <h3>Customer Info</h3>
@@ -133,7 +144,6 @@ header h2{margin-left:10px;}
 <canvas id="receiptCanvas"></canvas>
 
 <script>
-// VARIABLES
 let cart=[], total=0, current={};
 let purchases = JSON.parse(localStorage.getItem("purchases")) || [];
 const modal=document.getElementById("modal");
@@ -142,20 +152,38 @@ const cartItemsDiv=document.getElementById("cartItems");
 const purchaseList=document.getElementById("purchaseList");
 const customerInfoDiv=document.getElementById("customerInfo");
 
-// MODALS
-function openProduct(name,img,price){current={name,price};modal.style.display="block";modalImg.src=img;modalName.innerText=name;modalPrice.innerText="ZMW "+price;}
+// Product Modal
+function openProduct(name,img,price){
+  current={name,price};
+  modal.style.display="block";
+  document.getElementById("modalImg").src=img;
+  document.getElementById("modalName").innerText=name;
+  document.getElementById("modalPrice").innerText="ZMW "+price;
+}
 function closeModal(){modal.style.display="none";}
+
+// Cart Modal
 function openCartModal(){cartModal.style.display="block";renderCart();}
 function closeCartModal(){cartModal.style.display="none";}
-function openCustomerInfo(){customerInfoDiv.style.display="block";setTimeout(()=>{customerInfoDiv.style.bottom="50%";},50);}
-function closeCustomerInfo(){customerInfoDiv.style.bottom="-100%";setTimeout(()=>{customerInfoDiv.style.display="none";},500);}
 
-// CART FUNCTIONS
+// Customer Info Modal
+function openCustomerInfo(){
+  customerInfoDiv.style.display="block";
+  document.body.classList.add("modal-open");
+  setTimeout(()=>{customerInfoDiv.style.bottom="0";},10);
+}
+function closeCustomerInfo(){
+  customerInfoDiv.style.bottom="-100%";
+  document.body.classList.remove("modal-open");
+  setTimeout(()=>{customerInfoDiv.style.display="none";},400);
+}
+
+// Cart Functions
 function addToCart(){cart.push(current);total+=current.price;document.getElementById("total").innerText=total;closeModal();alert(current.name+" added to cart!");renderCart();}
 function removeFromCart(i){total-=cart[i].price;cart.splice(i,1);document.getElementById("total").innerText=total;renderCart();}
 function renderCart(){cartItemsDiv.innerHTML="";if(cart.length===0){cartItemsDiv.innerHTML="<p>Your cart is empty.</p>";return;}cart.forEach((item,i)=>{const div=document.createElement("div");div.className="cart-item";div.innerHTML=`${item.name} - ZMW ${item.price} <button onclick="removeFromCart(${i})">Remove</button>`;cartItemsDiv.appendChild(div);});}
 
-// SEND ORDER TO WHATSAPP
+// Send Order via WhatsApp
 function sendOrder(){
   const name=document.getElementById("customerName").value;
   const whatsapp=document.getElementById("customerWhatsApp").value;
@@ -176,17 +204,24 @@ function sendOrder(){
   generateReceipt(name,whatsapp,email);
 }
 
-// MAKE TRANSACTION
+// Make Transaction (USSD on mobile)
 function makeTransaction(){
-  prompt("Copy number to transfer: Vivien 0971415665 / Emmanuel agent 20202857");
-  window.location.href="tel:*115#";
+  const number = prompt("Copy number to transfer: Vivien 0971415665 / Emmanuel agent 20202857");
+  if(!number) return;
+  const ussd="*115#";
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    window.location.href=`tel:${ussd}`;
+    alert("USSD dialer opened. Complete your payment.");
+  } else {
+    alert("Use a phone to make the mobile transaction.");
+  }
 }
 
-// PURCHASE RECORDS
+// Purchases
 function renderPurchases(){purchaseList.innerHTML="";purchases.forEach(p=>{const div=document.createElement("div");div.className="purchase-item";div.innerHTML=`${p.product} - ZMW ${p.price}<br><small>${p.date} at ${p.time}</small>`;purchaseList.appendChild(div);});}
 function clearPurchases(){if(confirm("Clear all purchase records?")){purchases=[];localStorage.setItem("purchases","[]");renderPurchases();}}
 
-// RECEIPT GENERATION
+// Receipt
 function generateReceipt(name,whatsapp,email){
   const canvas=document.getElementById("receiptCanvas");
   canvas.width=500;canvas.height=500;
@@ -197,29 +232,47 @@ function generateReceipt(name,whatsapp,email){
   ctx.fillText(`WhatsApp: ${whatsapp}`,20,80);
   if(email)ctx.fillText(`Email: ${email}`,20,100);
   let y=130;
-  cart.forEach(i=>{
-    ctx.fillText(`${i.name} - ZMW ${i.price}`,20,y);
-    y+=20;
-  });
+  cart.forEach(i=>{ctx.fillText(`${i.name} - ZMW ${i.price}`,20,y);y+=20;});
   ctx.fillText(`Total: ZMW ${total}`,20,y+10);
   ctx.fillText(`Date: ${new Date().toLocaleString()}`,20,y+30);
-  const link=document.createElement("a");
-  link.download="receipt.png";
-  link.href=canvas.toDataURL("image/png");
-  link.click();
-  cart=[];total=0;document.getElementById("total").innerText=0;closeCustomerInfo();
-  renderCart();
+  const link=document.createElement("a");link.download="receipt.png";link.href=canvas.toDataURL("image/png");link.click();
+  cart=[];total=0;document.getElementById("total").innerText=0;closeCustomerInfo();renderCart();
 }
 
-// SEARCH
-search.addEventListener("input",e=>{let v=e.target.value.toLowerCase();document.querySelectorAll(".product").forEach(p=>{p.style.display=p.innerText.toLowerCase().includes(v)?"block":"none";});});
+// Search
+document.getElementById("search").addEventListener("input",e=>{
+  let v=e.target.value.toLowerCase();
+  document.querySelectorAll(".product").forEach(p=>{
+    p.style.display=p.innerText.toLowerCase().includes(v)?"block":"none";
+  });
+});
 
-// LIVE TIME
+// Live time
 function updateTime(){let now=new Date();document.getElementById("datetime").innerText=now.toLocaleDateString()+" | "+now.toLocaleTimeString();}
 setInterval(updateTime,1000);updateTime();
 
-// SERVICE WORKER
+// Service Worker
 if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js").then(()=>console.log("SW Registered"));}
+</script>
+
+<script>
+// Add to Home Screen
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const addBtn = document.createElement('button');
+  addBtn.innerText = "Add Vees Thrift to Home Screen";
+  addBtn.style = "position:fixed;bottom:100px;right:15px;padding:10px 15px;background:var(--pink);border:none;border-radius:10px;color:white;z-index:30;cursor:pointer;";
+  document.body.appendChild(addBtn);
+
+  addBtn.addEventListener('click', async () => {
+    addBtn.style.display = 'none';
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  });
+});
 </script>
 
 </body>
