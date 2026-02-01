@@ -1,4 +1,4 @@
-const CACHE_NAME = "vees-thrift-cache-v1";
+const CACHE_NAME = "vees-thrift-cache-v2";
 const urlsToCache = [
   "/",
   "/index.html",
