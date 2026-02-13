@@ -1,7 +1,6 @@
 {
   "name": "Vees Thrift",
   "short_name": "VeesThrift",
-  "description": "Shop your favorite products",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f6c1d9",
