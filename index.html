@@ -128,38 +128,18 @@ if ('serviceWorker' in navigator) {
 
 <script>
 
-// PRICE CONTROL
+<script>
+
+// FLEXIBLE PRICE CONTROL (NUMBER OR WORD)
 const prices = {
   "p (1).jpeg": 75,
-  "p (3).jpeg": 45,
-  "p (4).jpeg": 45,
-  "p (5).jpeg": 165,
-  "p (6).jpeg": 165,
-  "p (7).jpeg": 165,
-  "p (8).jpeg": 200,
-  "p (9).jpeg": 165,
-  "p (10).jpeg": 200,
-  "p (11).jpeg": 75,
-  "p (12).jpeg": 75,
-  "p (13).jpeg": 95,
-  "p (15).jpeg": 75,
-  "p (16).jpeg": 145,
-  "p (17).jpeg": 45,
-  "p (18).jpeg": 45,
-  "p (19).jpeg": 75,
-  "p (20).jpeg": 45,
-  "p (21).jpeg": 45,
-  "p (23).jpeg": 45,
-  "p (24).jpeg": 45,
-  "p (25).jpeg": 35,
-  "p (26).jpeg": 135,
-  "p (27).jpeg": 45,
-  "p (28).jpeg": 45,
-  "p (29).jpeg": 45,
-  "p (30).jpeg": 75
+  "p (2).jpeg": "Sold",
+  "p (3).jpeg": "Offer",
+  "p (4).jpeg": 120,
+  "p (5).jpeg": "New Arrival"
 };
 
-const defaultPrice = 50;
+const defaultPrice = "Ask Price";
 
 let cart = [];
 let total = 0;
@@ -173,7 +153,7 @@ function generateProducts(){
   for(let i=1;i<=maxImages;i++){
     const filename = `p (${i}).jpeg`;
     const imgPath = `images/${filename}`;
-    const price = prices[filename] || defaultPrice;
+    const price = prices[filename] ?? defaultPrice;
 
     const img = new Image();
     img.src = imgPath;
@@ -184,7 +164,7 @@ function generateProducts(){
       product.innerHTML = `
         <img src="${imgPath}">
         <div class="badge">Product #${i}</div>
-        <p class="price">ZMW ${price}</p>
+        <p class="price">${formatPrice(price)}</p>
       `;
 
       product.onclick = () => {
@@ -192,34 +172,38 @@ function generateProducts(){
         document.getElementById("modal").style.display="block";
         document.getElementById("modalImg").src=imgPath;
         document.getElementById("modalTitle").innerText=`Product #${i}`;
-        document.getElementById("modalPrice").innerText=`ZMW ${price}`;
+        document.getElementById("modalPrice").innerText=formatPrice(price);
       };
 
       container.appendChild(product);
     };
   }
-
-  setTimeout(()=>{
-    const observer=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting) entry.target.classList.add("show");
-      });
-    },{threshold:0.2});
-
-    document.querySelectorAll(".product").forEach(p=>observer.observe(p));
-  },1000);
 }
 
 generateProducts();
 
-// CART
+// FORMAT PRICE DISPLAY
+function formatPrice(price){
+  if(typeof price === "number"){
+    return `ZMW ${price}`;
+  }
+  return price; // return word as-is
+}
+
+// ADD TO CART
 function addToCart(){
   cart.push(current);
-  total+=current.price;
-  document.getElementById("total").innerText=total;
+
+  // Only add to total if price is a number
+  if(typeof current.price === "number"){
+    total += current.price;
+    document.getElementById("total").innerText = total;
+  }
+
   closeModal();
 }
 
+// OPEN CART
 function openCart(){
   document.getElementById("cartModal").style.display="block";
   renderCart();
@@ -229,21 +213,31 @@ function closeCart(){
   document.getElementById("cartModal").style.display="none";
 }
 
+// RENDER CART
 function renderCart(){
   const c=document.getElementById("cartItems");
   c.innerHTML="";
-  if(cart.length===0){c.innerHTML="<p>Cart is empty.</p>";return;}
+
+  if(cart.length===0){
+    c.innerHTML="<p>Cart is empty.</p>";
+    return;
+  }
+
   cart.forEach((item,index)=>{
     c.innerHTML+=`
       <div class="cart-item">
-        Product #${item.number} - ZMW ${item.price}
+        Product #${item.number} - ${formatPrice(item.price)}
         <button onclick="removeItem(${index})">Remove</button>
       </div>`;
   });
 }
 
+// REMOVE ITEM
 function removeItem(index){
-  total-=cart[index].price;
+  if(typeof cart[index].price === "number"){
+    total -= cart[index].price;
+  }
+
   cart.splice(index,1);
   document.getElementById("total").innerText=total;
   renderCart();
@@ -251,12 +245,19 @@ function removeItem(index){
 
 // WHATSAPP RESERVE
 function contactWhatsApp(){
-  if(cart.length===0){alert("Add item(s) first.");return;}
+  if(cart.length===0){
+    alert("Add item(s) first.");
+    return;
+  }
+
   let msg="Hello 👋, I would like to reserve:\n\n";
+
   cart.forEach((item,i)=>{
-    msg+=`${i+1}. Product #${item.number}\n`;
+    msg+=`${i+1}. Product #${item.number} - ${formatPrice(item.price)}\n`;
   });
+
   msg+=`\nTotal: ZMW ${total}`;
+
   window.open(`https://wa.me/260971415665?text=${encodeURIComponent(msg)}`);
 }
 
@@ -274,14 +275,11 @@ function updateTime(){
 setInterval(updateTime,1000);
 updateTime();
 
-// SERVICE WORKER
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js');
-}
-
 </script>
+
 </body>
 </html>
+
 
 
 
