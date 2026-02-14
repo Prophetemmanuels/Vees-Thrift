@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <title>Vees Thrift</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#f6c1d9">
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -30,45 +27,19 @@ header img{width:50px;height:50px;border-radius:50%;border:2px solid var(--gold)
 .product img{width:100%;border-radius:10px;}
 .badge{background:var(--gold);color:white;padding:3px 8px;border-radius:12px;font-size:12px;}
 .price{color:var(--gold);font-weight:bold;}
-
 .cart-bar{position:fixed;bottom:0;width:100%;background:white;padding:10px;box-shadow:0 -2px 6px rgba(0,0,0,.1);display:flex;justify-content:space-between;align-items:center;z-index:40;}
 .cart-bar button{margin-left:5px;padding:8px 14px;border:none;border-radius:20px;background:var(--pink);cursor:pointer;}
-
 .cart-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:50;padding:15px;overflow:auto;}
 .cart-item{border-bottom:1px solid #ddd;padding:10px 0;display:flex;justify-content:space-between;}
-
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:50;overflow:auto;padding:20px;}
 .modal-content{background:white;border-radius:20px;padding:20px;max-width:500px;margin:40px auto;}
 .modal-content img{width:100%;max-height:400px;object-fit:cover;border-radius:15px;}
 .modal-content button{width:100%;padding:12px;margin-top:10px;background:var(--pink);border:none;border-radius:25px;font-size:16px;cursor:pointer;}
-
-.whatsapp,.whatsapp-group,.other-services{
-position:fixed;
-right:15px;
-color:white;
-padding:15px;
-border-radius:50%;
-text-decoration:none;
-font-size:22px;
-z-index:60;
-box-shadow:0 4px 10px rgba(0,0,0,.3);
-}
-
+.whatsapp,.whatsapp-group,.other-services{position:fixed;right:15px;color:white;padding:15px;border-radius:50%;text-decoration:none;font-size:22px;z-index:50;}
 .whatsapp{bottom:80px;background:#25D366;}
 .whatsapp-group{bottom:150px;background:#128C7E;}
 .other-services{bottom:220px;background:#FF69B4;}
 </style>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => console.log("Service Worker Registered"))
-      .catch(err => console.log("Service Worker Failed", err));
-  });
-}
-</script>
-
 </head>
 <body>
 
@@ -96,7 +67,22 @@ if ('serviceWorker' in navigator) {
   <div id="cartItems"></div>
 </div>
 
-<!-- PRODUCT MODAL -->
+<!-- Floating Buttons -->
+<a class="whatsapp" href="https://wa.me/260971415665" target="_blank">💬</a>
+<a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF" target="_blank">👥</a>
+<a class="other-services" href="#" onclick="showServices()">💼</a>
+
+<!-- Other Services Modal -->
+<div class="modal" id="servicesModal">
+  <div class="modal-content">
+    <button onclick="closeServices()">⬅ Back</button>
+    <h3>Other Services We Provide</h3>
+    <button onclick="window.open('https://www.facebook.com/GHOPzambia/','_blank')">Ghop Photography 📸</button>
+    <button onclick="window.open('https://www.facebook.com/GhopBeautyMakeover/','_blank')">GhopBeauty Makeup 💄</button>
+  </div>
+</div>
+
+<!-- Product Modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button onclick="closeModal()">⬅ Back</button>
@@ -107,184 +93,90 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<!-- OTHER SERVICES MODAL -->
-<div class="modal" id="servicesModal">
-  <div class="modal-content">
-    <button onclick="closeServices()">⬅ Back</button>
-    <h3>Other Services We Provide</h3>
-    <button onclick="window.open('https://www.facebook.com/GHOPzambia/','_blank')">
-      Ghop Photography 📸
-    </button>
-    <button onclick="window.open('https://www.facebook.com/GhopBeautyMakeover/','_blank')">
-      GhopBeauty Makeup 💄
-    </button>
-  </div>
-</div>
-
-<!-- FLOATING BUTTONS -->
-<a class="whatsapp" href="https://wa.me/260971415665" target="_blank">💬</a>
-<a class="whatsapp-group" href="https://chat.whatsapp.com/LIZLsg7FucSCfNq1HH02pF" target="_blank">👥</a>
-<a class="other-services" href="#" onclick="showServices()">💼</a>
-
 <script>
-
-<script>
-
-// FLEXIBLE PRICE CONTROL (NUMBER OR WORD)
+// CART AND PRODUCTS
+let cart = [], total = 0, current = {};
 const prices = {
-  "p (1).jpeg": 75,
-  "p (2).jpeg": "Sold",
-  "p (3).jpeg": "Offer",
-  "p (4).jpeg": 120,
-  "p (5).jpeg": "New Arrival"
+  "p (1).jpeg": 135,
+  "p (2).jpeg": 45,
+  "p (3).jpeg": 45,
+  "p (4).jpeg": 55,
+  "p (5).jpeg": 50,
+  "p (6).jpeg": 45,
+  "p (7).jpeg": 55,
+  "p (8).jpeg": 45,
+  "p (9).jpeg": 55,
+  "p (10).jpeg": 135
 };
+const defaultPrice = 50;
 
-const defaultPrice = "Ask Price";
-
-let cart = [];
-let total = 0;
-let current = {};
-
-// GENERATE PRODUCTS
-function generateProducts(){
+function generateProducts() {
   const container = document.getElementById("products");
   const maxImages = 200;
-
-  for(let i=1;i<=maxImages;i++){
+  for (let i = 1; i <= maxImages; i++) {
     const filename = `p (${i}).jpeg`;
+    const price = prices[filename] || defaultPrice;
     const imgPath = `images/${filename}`;
-    const price = prices[filename] ?? defaultPrice;
-
-    const img = new Image();
-    img.src = imgPath;
-
-    img.onload = function(){
-      const product = document.createElement("div");
-      product.className = "product";
-      product.innerHTML = `
-        <img src="${imgPath}">
-        <div class="badge">Product #${i}</div>
-        <p class="price">${formatPrice(price)}</p>
-      `;
-
-      product.onclick = () => {
-        current = {number:i, price};
-        document.getElementById("modal").style.display="block";
-        document.getElementById("modalImg").src=imgPath;
-        document.getElementById("modalTitle").innerText=`Product #${i}`;
-        document.getElementById("modalPrice").innerText=formatPrice(price);
-      };
-
-      container.appendChild(product);
+    const product = document.createElement("div");
+    product.className = "product";
+    product.innerHTML = `
+      <img src="${imgPath}" onerror="this.style.display='none'">
+      <div class="badge">Product #${i}</div>
+      <p class="price">ZMW ${price}</p>
+    `;
+    product.onclick = () => {
+      current = { number: i, price, filename };
+      document.getElementById("modal").style.display = "block";
+      document.getElementById("modalImg").src = imgPath;
+      document.getElementById("modalTitle").innerText = `Product #${i}`;
+      document.getElementById("modalPrice").innerText = `ZMW ${price}`;
+      document.querySelectorAll(".product").forEach(p => p.classList.remove("selected"));
+      product.classList.add("selected");
     };
+    container.appendChild(product);
   }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("show"); });
+  }, { threshold: 0.2 });
+  document.querySelectorAll(".product").forEach(p => observer.observe(p));
 }
 
 generateProducts();
 
-// FORMAT PRICE DISPLAY
-function formatPrice(price){
-  if(typeof price === "number"){
-    return `ZMW ${price}`;
-  }
-  return price; // return word as-is
-}
-
-// ADD TO CART
-function addToCart(){
-  cart.push(current);
-
-  // Only add to total if price is a number
-  if(typeof current.price === "number"){
-    total += current.price;
-    document.getElementById("total").innerText = total;
-  }
-
-  closeModal();
-}
-
-// OPEN CART
-function openCart(){
-  document.getElementById("cartModal").style.display="block";
-  renderCart();
-}
-
-function closeCart(){
-  document.getElementById("cartModal").style.display="none";
-}
-
-// RENDER CART
+// CART FUNCTIONS
+function addToCart(){cart.push(current);total+=current.price;document.getElementById("total").innerText=total;closeModal();}
+function openCart(){document.getElementById("cartModal").style.display="block";renderCart();}
+function closeCart(){document.getElementById("cartModal").style.display="none";}
 function renderCart(){
-  const c=document.getElementById("cartItems");
-  c.innerHTML="";
-
-  if(cart.length===0){
-    c.innerHTML="<p>Cart is empty.</p>";
-    return;
-  }
-
-  cart.forEach((item,index)=>{
-    c.innerHTML+=`
-      <div class="cart-item">
-        Product #${item.number} - ${formatPrice(item.price)}
-        <button onclick="removeItem(${index})">Remove</button>
-      </div>`;
-  });
+  const c=document.getElementById("cartItems");c.innerHTML='';
+  if(cart.length===0){c.innerHTML="<p>Cart is empty.</p>";return;}
+  cart.forEach((item,index)=>{c.innerHTML+=`<div class="cart-item">Product #${item.number} - ZMW ${item.price} <button onclick="removeItem(${index})">Remove</button></div>`;});
 }
+function removeItem(index){total-=cart[index].price;cart.splice(index,1);document.getElementById("total").innerText=total;renderCart();}
 
-// REMOVE ITEM
-function removeItem(index){
-  if(typeof cart[index].price === "number"){
-    total -= cart[index].price;
-  }
-
-  cart.splice(index,1);
-  document.getElementById("total").innerText=total;
-  renderCart();
-}
-
-// WHATSAPP RESERVE
+// WHATSAPP RESERVATION
 function contactWhatsApp(){
-  if(cart.length===0){
-    alert("Add item(s) first.");
-    return;
-  }
-
-  let msg="Hello 👋, I would like to reserve:\n\n";
-
-  cart.forEach((item,i)=>{
-    msg+=`${i+1}. Product #${item.number} - ${formatPrice(item.price)}\n`;
-  });
-
-  msg+=`\nTotal: ZMW ${total}`;
-
+  if(cart.length===0){alert("Add item(s) to cart first."); return;}
+  let msg="Hello 👋, I would like to reserve these products:\n\n";
+  cart.forEach((item,index)=>{msg+=`${index+1}. Product #${item.number}\n`;});
+  msg+=`\nTotal: ZMW ${total}\nPlease advise sizes.`;
   window.open(`https://wa.me/260971415665?text=${encodeURIComponent(msg)}`);
 }
 
-// MODALS
-function closeModal(){document.getElementById("modal").style.display="none";}
-function showServices(){document.getElementById("servicesModal").style.display="block";}
-function closeServices(){document.getElementById("servicesModal").style.display="none";}
+// OTHER SERVICES
+function showServices(){ document.getElementById('servicesModal').style.display='block'; }
+function closeServices(){ document.getElementById('servicesModal').style.display='none'; }
+
+// MODAL CLOSE
+function closeModal(){document.getElementById('modal').style.display='none';}
 
 // LIVE TIME
-function updateTime(){
-  let now=new Date();
-  document.getElementById("datetime").innerText=
-  now.toLocaleDateString()+" | "+now.toLocaleTimeString();
-}
-setInterval(updateTime,1000);
-updateTime();
+function updateTime(){let now=new Date();document.getElementById("datetime").innerText=now.toLocaleDateString()+" | "+now.toLocaleTimeString();}
+setInterval(updateTime,1000);updateTime();
 
+// SERVICE WORKER (INSTALLABLE PWA)
+if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
